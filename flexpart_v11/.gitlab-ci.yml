@@ -1,0 +1,246 @@
+stages:
+  - build
+  - test
+  - compare
+  - container
+
+default:
+  image: 
+    name: harbor.wolke.img.univie.ac.at/flexpart/rockylinux9:latest
+    pull_policy: always
+
+  tags:
+    - podman
+
+setup:
+  stage: build
+  artifacts:
+    paths:
+      - tests/testdata/
+    expire_in: 30 min
+    when: on_success
+  script:
+    - mkdir tests/testdata/
+    - wget -r -nH --cut-dirs=2 --no-parent --reject="index.html*" -P tests/testdata/ "https://webdata.wolke.img.univie.ac.at/flexpart/"
+
+alma8-build:
+  image: harbor.wolke.img.univie.ac.at/flexpart/almalinux8:latest
+  stage: build
+  when: manual
+
+  script:
+    - export FC=gfortran
+    - export LIBRARY_PATH=/usr/lib64:/usr/local/lib64
+    - export CPATH=/usr/include:/usr/local/include:/usr/lib64/gfortran/modules
+    - make -j -C src -f makefile_gfortran eta=no
+    - make -j -C src -f makefile_gfortran
+  artifacts:
+    when: on_success
+    paths:
+      - ./src/FLEXPART
+      - ./src/FLEXPART_ETA
+    expire_in: 30 mins
+
+rocky9-build:
+  stage: build
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push" || $CI_PIPELINE_SOURCE == "merge_request_event"'
+
+  script:
+    - export FC=gfortran
+    - export LIBRARY_PATH=/usr/lib64:/usr/local/lib64
+    - export CPATH=/usr/include:/usr/local/include:/usr/lib64/gfortran/modules
+    - make -j -C src -f makefile_gfortran eta=no
+    - make -j -C src -f makefile_gfortran
+  artifacts:
+    when: on_success
+    paths:
+      - ./src/FLEXPART
+      - ./src/FLEXPART_ETA
+    expire_in: 30 mins
+
+options-test:
+  stage: test
+  needs:
+    - rocky9-build
+    - setup
+
+  script:
+    - ulimit -s unlimited
+    - bash ./tests/run_default_options_test.sh
+  artifacts:
+    when: on_success
+    paths:
+      - ./tests/output_settling
+      - ./tests/output_bkw
+      - ./tests/output_settling_eta
+      - ./tests/output_bkw_eta
+    expire_in: 10 mins
+
+nests-test:
+  stage: test
+  when: manual
+  needs:
+    - rocky9-build
+
+  script:
+    - ulimit -s unlimited
+    - bash ./tests/run_nests_test.sh
+  artifacts:
+    when: on_success
+    paths:
+      - ./tests/output_nests
+    expire_in: 10 mins
+
+openmp-simulation:
+  stage: test
+  needs:
+    - rocky9-build
+    - setup
+
+  script:
+    - ulimit -s unlimited
+    - bash ./tests/run_openmp_test.sh
+
+  artifacts:
+    when: on_success
+    paths:
+      - ./tests/output_omp1
+      - ./tests/output_omp32
+      - ./tests/output_omp1_eta
+      - ./tests/output_omp32_eta
+    expire_in: 10 mins
+
+etex-simulation:
+  stage: test
+  when: manual
+  needs:
+    - rocky9-build
+
+  script:
+    - ulimit -s unlimited
+    - bash ./tests/run_etex_test.sh
+
+  artifacts:
+    when: on_success
+    paths:
+      - ./tests/output_etex
+    expire_in: 10 mins
+
+settling-test:
+  image: harbor.wolke.img.univie.ac.at/flexpart/postprocessing:py39
+  stage: compare
+  needs:
+    - job: options-test
+      artifacts: true
+  script:
+    - cd ./tests/
+    - python3 ./settling_test.py
+  artifacts:
+    when: always
+    paths:
+      - ./tests/settling_test.txt
+    expire_in: never
+
+bkw-test:
+  image: harbor.wolke.img.univie.ac.at/flexpart/postprocessing:py39
+  stage: compare
+  needs:
+    - job: options-test
+      artifacts: true
+  script:
+    - cd ./tests/
+    - python3 ./bkw_test.py
+  artifacts:
+    when: always
+    paths:
+      - ./tests/bkw_test.txt
+    expire_in: never
+
+openmp-test:
+  image: harbor.wolke.img.univie.ac.at/flexpart/postprocessing:py39
+  stage: compare
+  needs:
+    - job: openmp-simulation
+      artifacts: true
+  script:
+    - cd ./tests/
+    - python3 ./openmp_test.py
+
+etex-test:
+  image: harbor.wolke.img.univie.ac.at/flexpart/postprocessing:py39
+  stage: compare
+  needs:
+    - job: etex-simulation
+      artifacts: true
+  script:
+    - cd ./tests/
+    - python3 ./etex_test.py
+  artifacts:
+    when: on_success
+    paths:
+      - ./tests/etex_test.txt
+    expire_in: never
+
+documentation:
+  image: harbor.wolke.img.univie.ac.at/podman/mkdocs-computer:latest
+  stage: build
+  rules:
+    - if: '$CI_COMMIT_REF_NAME == "master"'
+  script:
+    - cd ./documentation && mkdocs build -c --verbose
+    - sshpass -p "$WOLKE_PASSWORD" rsync -autv --delete -e "ssh -o StrictHostKeyChecking=no" /tmp/cr-site/* "$WOLKE_USER@wolke.img.univie.ac.at:/var/www/flexpart/docs"
+
+ford:
+  image: docker.io/library/python:3.10-alpine
+  stage: build
+  rules:
+    - if: '$CI_COMMIT_REF_NAME == "master"'
+  script:
+    - apk add --update --no-cache openssh sshpass rsync
+    - pip install --no-cache-dir ford
+    - |
+      cat > project.md <<EOF
+      ---
+      project: FLEXPART
+      author: FLEXPART community
+      ---
+
+      This is an automated documentation build from the Fortran source code.
+      EOF
+    - ford project.md -o ./ford
+    - sshpass -p "$WOLKE_PASSWORD" rsync -autv --delete -e "ssh -o StrictHostKeyChecking=no" ./ford/* "$WOLKE_USER@wolke.img.univie.ac.at:/var/www/flexpart/ford"
+
+base:
+  stage: container
+  image: quay.io/podman/stable
+  when: manual
+  tags:
+    - privileged
+  script:
+    - podman build -t "harbor.wolke.img.univie.ac.at/flexpart/rockylinux9:$(date +"v%Y.%m")" -t "harbor.wolke.img.univie.ac.at/flexpart/rockylinux9:latest" -f ./tests/Dockerfile
+    - podman push "harbor.wolke.img.univie.ac.at/flexpart/rockylinux9:latest"
+    - podman push "harbor.wolke.img.univie.ac.at/flexpart/rockylinux9:$(date +"v%Y.%m")"
+
+post:
+  stage: container
+  image: quay.io/podman/stable
+  when: manual
+  tags:
+    - privileged
+  script:
+    - podman build -t "harbor.wolke.img.univie.ac.at/flexpart/postprocessing:py39" -f ./tests/Dockerfile.python
+    - podman push "harbor.wolke.img.univie.ac.at/flexpart/postprocessing:py39"
+
+flexpart:
+  stage: container
+  image: quay.io/podman/stable
+  when: manual
+  variables:
+    MAJOR_VERSION: "v11"
+  tags:
+    - privileged
+  script:
+    - podman build -t "harbor.wolke.img.univie.ac.at/flexpart/flexpart${MAJOR_VERSION}-${CI_COMMIT_REF_NAME}:${CI_COMMIT_SHA:0:8}" --build-arg COMMIT=${CI_COMMIT_SHA:0:8} -f ./containers/Dockerfile .
+    - podman push "harbor.wolke.img.univie.ac.at/flexpart/flexpart${MAJOR_VERSION}-${CI_COMMIT_REF_NAME}:${CI_COMMIT_SHA:0:8}"
+    - podman push "harbor.wolke.img.univie.ac.at/flexpart/flexpart${MAJOR_VERSION}-${CI_COMMIT_REF_NAME}:${CI_COMMIT_SHA:0:8}" "harbor.wolke.img.univie.ac.at/flexpart/flexpart${MAJOR_VERSION}-${CI_COMMIT_REF_NAME}:latest"
