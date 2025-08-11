@@ -2274,6 +2274,10 @@ subroutine readreleases
   allocate(xmasssave(numpoint),stat=stat)
   if (stat.ne.0) write(*,*)'ERROR: could not allocate xmasssave'
 
+  !allocate memory for atpointer, by ZW
+  allocate(atpointer(numpoint),stat=stat)
+  if (stat.ne.0) write(*,*)'ERROR: could not allocate atpointer'
+  
   if (lroot) write (*,*) 'Releasepoints : ', numpoint
 
   do i=1,numpoint
