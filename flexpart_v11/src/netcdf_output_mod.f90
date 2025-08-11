@@ -130,12 +130,18 @@ subroutine alloc_netcdf
 
   allocate( massIDi(maxspec), stat=stat)
   if (stat.ne.0) error stop "Could not allocate netcdf fields 2"
+
+  allocate( hmix_specID(maxspec), hmix_specIDn(maxspec), hmix_acc_specID(maxspec), hmix_acc_specIDn(maxspec), &
+    hmix_arr_specID(maxspec), hmix_arr_specIDn(maxspec), hmix_AllReleasePerTime_specID(maxspec), hmix_AllReleasePerTime_specIDn(maxspec), stat=stat)
+  if (stat.ne.0) error stop "Could not allocate netcdf fields 3"
 end subroutine alloc_netcdf
 
 subroutine dealloc_netcdf
   deallocate( specID,specIDppt,wdspecID,ddspecID,specIDn,specIDnppt,wdspecIDn,ddspecIDn, &
     recconcID,recpptvID )
   deallocate( massIDi )
+  deallocate( hmix_specID, hmix_specIDn, hmix_acc_specID, hmix_acc_specIDn, &
+    hmix_arr_specID, hmix_arr_specIDn, hmix_AllReleasePerTime_specID, hmix_AllReleasePerTime_specIDn )
 end subroutine dealloc_netcdf
 
 !****************************************************************
