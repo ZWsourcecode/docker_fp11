@@ -45,6 +45,21 @@ module outgrid_mod
   real,allocatable, dimension (:,:,:,:,:) :: init_cond
   real,allocatable, dimension (:,:,:,:,:,:) :: init_cond_omp
 
+  ! To print concentration within mixing height, added by ZW
+  ! -------------------- start --------------------
+  real,allocatable, dimension (:,:,:) :: conc_3d_byz, conc_3d_byzn
+  real,allocatable, dimension (:,:) :: conc_2d_lasttime, conc_2d_lasttimen, conc_2d_lasttime_allrelease
+  real,allocatable, dimension (:,:) :: conc_2d, conc_2dn, hmix_2d, hmix_2dn
+
+  ! read in external hmix
+  real,allocatable, dimension (:,:,:) :: data_in
+  real,allocatable, dimension (:,:) :: hmix_readin_2d, data_in_onehour
+  real,allocatable, dimension (:)  :: time_in
+  integer :: nlon_in, nlat_in, ntime_in
+  integer ::  read_month = 0 ! identify which month of hmix data has been read
+  integer ::  index_within_month = 0 ! identify hour index of this month for hmix data  
+  ! -------------------- end --------------------
+
   !1 fluxw west - east
   !2 fluxe east - west
   !3 fluxs south - north
@@ -139,6 +154,36 @@ subroutine alloc_grid
     if (stat.ne.0) error stop 'ERROR: could not allocate init_cond_omp'
 #endif
   endif
+
+  ! To print concentration within mixing height, added by ZW
+  ! -------------------- start --------------------
+  allocate(conc_3d_byz(0:numxgrid-1, 0:numygrid-1,numzgrid),stat=stat)
+  if (stat.ne.0) write(*,*)'ERROR: could not allocate conc_3d_byz'
+  allocate(conc_3d_byzn(0:numxgridn-1, 0:numygridn-1,numzgrid),stat=stat)
+  if (stat.ne.0) write(*,*)'ERROR: could not allocate conc_3d_byzn'
+
+  allocate(conc_2d_lasttime(0:numxgrid-1, &
+    0:numygrid-1),stat=stat)
+  if (stat.ne.0) write(*,*)'ERROR: could not allocate conc_2d_lasttime'
+  allocate(conc_2d_lasttimen(0:numxgridn-1, &
+    0:numygridn-1),stat=stat)
+  if (stat.ne.0) write(*,*)'ERROR: could not allocate conc_2d_lasttimen'
+
+  allocate(conc_2d(0:numxgrid-1, 0:numygrid-1),stat=stat)
+  if (stat.ne.0) write(*,*)'ERROR: could not allocate conc_2d'
+  allocate(conc_2dn(0:numxgridn-1, 0:numygridn-1),stat=stat)
+  if (stat.ne.0) write(*,*)'ERROR: could not allocate conc_2dn'
+
+  allocate(hmix_2d(0:numxgrid-1, 0:numygrid-1),stat=stat)
+  if (stat.ne.0) write(*,*)'ERROR: could not allocate hmix_2d'
+  allocate(hmix_2dn(0:numxgridn-1, 0:numygridn-1),stat=stat)
+  if (stat.ne.0) write(*,*)'ERROR: could not allocate hmix_2dn'
+
+  allocate(hmix_readin_2d(0:numxgrid-1, 0:numygrid-1),stat=stat)
+  if (stat.ne.0) write(*,*)'ERROR: could not allocate hmix_readin_2d'
+  ! -------------------- end --------------------
+
+
 end subroutine alloc_grid
 
 subroutine outgrid_init
@@ -357,6 +402,19 @@ subroutine outgrid_init
   gridunc_omp(:,:,:,:,:,:,:,:)=0.
   gridcnt_omp(:,:,:,:)=0.
 #endif
+
+  ! initial arrays, added by ZW
+  ! -------------------- start --------------------
+  conc_3d_byz(:,:,:) = 0
+  conc_3d_byzn(:,:,:) = 0
+  conc_2d_lasttime(:,:) = 0
+  conc_2d_lasttimen(:,:) = 0
+  conc_2d(:,:) = 0
+  conc_2dn(:,:) = 0
+  hmix_2d(:,:) = 0
+  hmix_2dn(:,:) = 0
+  hmix_readin_2d(:,:) = 0
+  ! -------------------- end --------------------
 
 end subroutine outgrid_init
 

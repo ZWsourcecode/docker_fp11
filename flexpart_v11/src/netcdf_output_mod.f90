@@ -43,7 +43,9 @@ module netcdf_output_mod
                        atpointer !by ZW
   use outgrid_mod,  only: outheight,oroout,densityoutgrid,factor3d,volume,&
                        wetgrid,wetgridsigma,drygrid,drygridsigma,grid,gridsigma,&
-                       area,arean,volumen,orooutn
+                       area,arean,volumen,orooutn, &
+                       conc_2d, conc_2dn, conc_3d_byz, conc_3d_byzn, hmix_2d, hmix_2dn, & ! ZW 
+                       conc_2d_lasttime, conc_2d_lasttimen, conc_2d_lasttime_allrelease, data_in_onehour ! by ZW
   use par_mod,   only: dep_prec, sp, dp, nclassunc,&
                        unitoutrecept,unitoutreceptppt,unittmp,lpartoutputperfield
   use com_mod
@@ -81,9 +83,9 @@ module netcdf_output_mod
 
   integer, dimension(3)       :: dimids_3d, dimidsn_3d ! by ZW
   integer, dimension(4)       :: dimids_4d, dimidsn_4d, dimids_4d_arr, dimidsn_4d_arr ! by ZW
-  integer, dimension(maxspec) :: hmix_specID, hmix_specIDn, hmix_acc_specID, hmix_acc_specIDn ! by ZW
-  integer, dimension(maxspec) :: hmix_arr_specID, hmix_arr_specIDn ! by ZW
-  integer, dimension(maxspec) :: hmix_AllReleasePerTime_specID, hmix_AllReleasePerTime_specIDn ! by ZW
+  integer, allocatable,dimension(:) :: hmix_specID, hmix_specIDn, hmix_acc_specID, hmix_acc_specIDn ! by ZW
+  integer, allocatable,dimension(:) :: hmix_arr_specID, hmix_arr_specIDn ! by ZW
+  integer, allocatable,dimension(:) :: hmix_AllReleasePerTime_specID, hmix_AllReleasePerTime_specIDn ! by ZW
   integer                     :: atimeID, atimeIDn ! ZW
   integer                     :: sfromatimeID, sfromatimeIDn ! ZW
   ! integer, parameter :: nhour_10d = 240 ! hours in 10 day, ZW
