@@ -627,9 +627,9 @@ subroutine writeheader_netcdf(lnest)
       call nf90_err(nf90_put_att(ncid, hmix_arr_sID, 'decay', decay(i)))
       call nf90_err(nf90_put_att(ncid, hmix_arr_sID, 'weightmolar', weightmolar(i)))
     !        call nf90_err(nf90_put_att(ncid, sID, 'ohreact', ohreact(i)))
-      call nf90_err(nf90_put_att(ncid, hmix_arr_sID, 'ohcconst', ohcconst(i)))
-      call nf90_err(nf90_put_att(ncid, hmix_arr_sID, 'ohdconst', ohdconst(i)))
-      call nf90_err(nf90_put_att(ncid, hmix_arr_sID, 'vsetaver', vsetaver(i)))
+      ! call nf90_err(nf90_put_att(ncid, hmix_arr_sID, 'ohcconst', ohcconst(i)))
+      ! call nf90_err(nf90_put_att(ncid, hmix_arr_sID, 'ohdconst', ohdconst(i)))
+      ! call nf90_err(nf90_put_att(ncid, hmix_arr_sID, 'vsetaver', vsetaver(i)))
 
       if (lnest) then
         hmix_arr_specIDn(i) = hmix_arr_sID
@@ -646,9 +646,9 @@ subroutine writeheader_netcdf(lnest)
       call nf90_err(nf90_put_att(ncid, hmix_acc_sID, 'decay', decay(i)))
       call nf90_err(nf90_put_att(ncid, hmix_acc_sID, 'weightmolar', weightmolar(i)))
   !        call nf90_err(nf90_put_att(ncid, sID, 'ohreact', ohreact(i)))
-      call nf90_err(nf90_put_att(ncid, hmix_acc_sID, 'ohcconst', ohcconst(i)))
-      call nf90_err(nf90_put_att(ncid, hmix_acc_sID, 'ohdconst', ohdconst(i)))
-      call nf90_err(nf90_put_att(ncid, hmix_acc_sID, 'vsetaver', vsetaver(i)))
+      ! call nf90_err(nf90_put_att(ncid, hmix_acc_sID, 'ohcconst', ohcconst(i)))
+      ! call nf90_err(nf90_put_att(ncid, hmix_acc_sID, 'ohdconst', ohdconst(i)))
+      ! call nf90_err(nf90_put_att(ncid, hmix_acc_sID, 'vsetaver', vsetaver(i)))
 
       if (lnest) then
         hmix_acc_specIDn(i) = hmix_acc_sID
@@ -1463,7 +1463,7 @@ subroutine concoutput_nest_netcdf(itime,outnum)
 
   integer, intent(in) :: itime
   real, intent(in)    :: outnum
-  integer             :: ncid,kp,ks,kz,ix,jy,iix,jjy,kzz,ngrid
+  integer             :: ncid,kp,ks,kz,ix,jy,iix,jjy,kzz,ngrid,nh ! by ZW
   integer             :: nage,i,l,jj
   real                :: tot_mu(maxspec,maxpointspec_act)
   real                :: halfheight,dz,dz1,dz2
