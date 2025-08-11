@@ -19,6 +19,9 @@ module point_mod
 
   real,allocatable, dimension (:,:) :: xmass
   real,allocatable, dimension (:) :: rho_rel
+  
+  ! arrival time pointer, by ZW
+  integer, allocatable, dimension (:) :: atpointer
 
   real ::      &
     dx,        & ! grid distance in x direction
