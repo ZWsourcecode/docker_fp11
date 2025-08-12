@@ -92,6 +92,7 @@ end_release=$(date -u -d "$end -$step hours")
 # # 	echo $ITIME2
 
 i=0
+releaseno=0
 while [ "$thedate" != "$start_release" ]
 do
 # 	echo $thedate
@@ -101,11 +102,13 @@ do
 # 	echo $IDATE1
 # 	echo $ITIME1
 	
-	i=$(( i - $step ))
 	
 	IDATE1=$(date -u -d "$end -$i hours" +%Y%m%d)
 	ITIME1=$(date -u -d "$end -$i hours" +%H%M%S)
 	
+	releaseno=$(( releaseno + 1 ))
+	# release at once 
+	i=$(( i - $step ))
 # 	echo $IDATE2
 # 	echo $ITIME2
  	thedate=$(date -u -d "$end -$i hours")
@@ -125,7 +128,7 @@ Z2      =         $z, ! Upper height of release box meters/hPa above reference l
 ZKIND   =              1, ! Reference level 1=above ground, 2=above sea level, 3 for pressure in hPa
 MASS    =       1.0000E0, ! Total mass emitted, only relevant for fwd simulations
 PARTS   =          $particles, ! Total number of particles to be released
-COMMENT =    "RELEASE 1 $IDATE1:$ITIME1", ! Comment, written in the outputfile
+COMMENT =    "RELEASE $releaseno $IDATE1:$ITIME1", ! Comment, written in the outputfile
 /
 EOM
 	

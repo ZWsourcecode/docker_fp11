@@ -995,13 +995,13 @@ subroutine concoutput_netcdf(itime,outnum,gridtotalunc,wetgridtotalunc,drygridto
   if (tpointer.eq.1) then
     ! write release/arrival time, by ZW
     do kp=1,maxpointspec_act
-      atpointer(kp) = nint(real(ireleasestart(kp))/real(loutstep))
+      atpointer(kp) = kp
       ! write (*,*) 'atpointer(kp)  : ',atpointer(kp)
       call nf90_err(nf90_put_var( ncid, atimeID, ireleasestart(kp), (/ atpointer(kp) /)))
     end do
 
     ! write seconds from arrival time, by ZW
-    do nh=1,nint(real(lage(1))/real(-loutstep))
+    do nh=1,abs(nint(real(lage(1))/real(loutstep)))
       call nf90_err(nf90_put_var( ncid, sfromatimeID, loutstep*nh, (/ nh /)))
     end do
   endif
@@ -1495,19 +1495,21 @@ subroutine concoutput_nest_netcdf(itime,outnum)
   ! write time (do not increase time counter here, done in main output domain)
   call nf90_err(nf90_put_var( ncid, timeID, itime, (/ tpointer /)))
   
+  ! -------------------- start --------------------
   if (tpointer.eq.1) then
     ! write release/arrival time, by ZW
     do kp=1,maxpointspec_act
-      atpointer(kp) = nint(real(ireleasestart(kp))/real(loutstep))
+      atpointer(kp) = kp
       call nf90_err(nf90_put_var( ncid, atimeID, ireleasestart(kp), (/ atpointer(kp) /)))
     end do
 
     ! write seconds from arrival time, by ZW
-    do nh=1,nint(real(lage(1))/real(-loutstep))
+    do nh=1,abs(nint(real(lage(1))/real(loutstep)))
       call nf90_err(nf90_put_var( ncid, sfromatimeID, loutstep*nh, (/ nh /)))
     end do
   endif
-
+  ! -------------------- end --------------------
+  
   ! For forward simulations, output fields have dimension MAXSPEC,
   ! for backward simulations, output fields have dimension MAXPOINT.
   ! Thus, make loops either about nspec, or about numpoint
