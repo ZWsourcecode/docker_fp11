@@ -1014,12 +1014,22 @@ subroutine concoutput_netcdf(itime,outnum,gridtotalunc,wetgridtotalunc,drygridto
   call nf90_err(nf90_put_var( ncid, timeID, itime, (/ tpointer /)))
   
   ! -------------------- start --------------------
+  ! Set atpointer when itime matches ireleasestart, get the index of the release time from simulating time
+  ! atpointer is used to write the release/arrival time in the netcdf file
+  do kp = 1, maxpointspec_act
+    if (itime == ireleasestart(kp)) then
+      atpointer(kp) = tpointer
+    else
+      atpointer(kp) = 0
+    end if
+  end do
+
+  ! when simulation starts (itime is 1), initialize arrival time (atime) and sfromatime (particle filetime)
   if (tpointer.eq.1) then
     ! write release/arrival time, by ZW
     do kp=1,maxpointspec_act
-      atpointer(kp) = kp
       ! write (*,*) 'atpointer(kp)  : ',atpointer(kp)
-      call nf90_err(nf90_put_var( ncid, atimeID, ireleasestart(kp), (/ atpointer(kp) /)))
+      call nf90_err(nf90_put_var( ncid, atimeID, ireleasestart(kp), (/ kp /)))
     end do
 
     ! write seconds from arrival time, by ZW
@@ -1176,6 +1186,7 @@ subroutine concoutput_netcdf(itime,outnum,gridtotalunc,wetgridtotalunc,drygridto
   !*********************************************************************
 
   ! print out hmix, by ZW
+  ! -------------------- start --------------------
   do jy=0,numygrid-1
     do ix=0,numxgrid-1
       ! hmix_2d(ix,jy) = hmix(ix,jy,1,memind(2))
@@ -1187,6 +1198,7 @@ subroutine concoutput_netcdf(itime,outnum,gridtotalunc,wetgridtotalunc,drygridto
 
   call nf90_err(nf90_put_var(ncid,hmix_specID(1),hmix_2d,&
     (/ 1,1,tpointer /), (/ numxgrid,numygrid,1 /) ))
+  ! -------------------- end --------------------
 
   if (llcmoutput) then
     ks_start=2
@@ -1346,33 +1358,33 @@ subroutine concoutput_netcdf(itime,outnum,gridtotalunc,wetgridtotalunc,drygridto
           call nf90_err(nf90_put_var(ncid,hmix_acc_specID(ks),conc_2d,&
             (/ 1,1 /), (/ numxgrid,numygrid /) ))
           
-          if ((tpointer.gt.atpointer(kp)) .and. &
-              (tpointer.le.(atpointer(kp)+abs(nint(real(lage(nage))/real(loutstep)))))) then
+          if ((tpointer.ge.atpointer(kp)) .and. &
+              (tpointer.lt.(atpointer(kp)+abs(nint(real(lage(nage))/real(loutstep)))))) then
             call nf90_err(nf90_put_var(ncid,arr_specID(ks),conc_3d_byz,&
-              (/ 1,1,1,tpointer-atpointer(kp),atpointer(kp) /), (/ numxgrid,numygrid,numzwrite,1,1 /) ))
+              (/ 1,1,1,tpointer-atpointer(kp)+1,kp /), (/ numxgrid,numygrid,numzwrite,1,1 /) ))
           endif
           
           if (tpointer.eq.1) then
             if (kp.eq.1) then
-              if ((tpointer.gt.atpointer(kp)) .and. &
-                  (tpointer.le.(atpointer(kp)+abs(nint(real(lage(nage))/real(loutstep)))))) then
+              if ((tpointer.ge.atpointer(kp)) .and. &
+                  (tpointer.lt.(atpointer(kp)+abs(nint(real(lage(nage))/real(loutstep)))))) then
                 call nf90_err(nf90_put_var(ncid,hmix_arr_specID(ks),conc_2d,&
-                  (/ 1,1,tpointer-atpointer(kp),atpointer(kp) /), (/ numxgrid,numygrid,1,1 /) ))
+                  (/ 1,1,tpointer-atpointer(kp)+1,kp /), (/ numxgrid,numygrid,1,1 /) ))
               endif
               conc_2d_lasttime = conc_2d
             else
-              if ((tpointer.gt.atpointer(kp)) .and. &
-                  (tpointer.le.(atpointer(kp)+abs(nint(real(lage(nage))/real(loutstep)))))) then
+              if ((tpointer.ge.atpointer(kp)) .and. &
+                  (tpointer.lt.(atpointer(kp)+abs(nint(real(lage(nage))/real(loutstep)))))) then
                 call nf90_err(nf90_put_var(ncid,hmix_arr_specID(ks),conc_2d-conc_2d_lasttime,&
-                  (/ 1,1,tpointer-atpointer(kp),atpointer(kp) /), (/ numxgrid,numygrid,1,1 /) ))
+                  (/ 1,1,tpointer-atpointer(kp)+1,kp /), (/ numxgrid,numygrid,1,1 /) ))
               endif
               conc_2d_lasttime = conc_2d
             endif
           else
-            if ((tpointer.gt.atpointer(kp)) .and. &
-                (tpointer.le.(atpointer(kp)+abs(nint(real(lage(nage))/real(loutstep)))))) then
+            if ((tpointer.ge.atpointer(kp)) .and. &
+                (tpointer.lt.(atpointer(kp)+abs(nint(real(lage(nage))/real(loutstep)))))) then
               call nf90_err(nf90_put_var(ncid,hmix_arr_specID(ks),conc_2d-conc_2d_lasttime,&
-                (/ 1,1,tpointer-atpointer(kp),atpointer(kp) /), (/ numxgrid,numygrid,1,1 /) ))
+                (/ 1,1,tpointer-atpointer(kp)+1,kp /), (/ numxgrid,numygrid,1,1 /) ))
             endif
             conc_2d_lasttime = conc_2d
           endif
@@ -1514,11 +1526,20 @@ subroutine concoutput_nest_netcdf(itime,outnum)
   call nf90_err(nf90_put_var( ncid, timeID, itime, (/ tpointer /)))
   
   ! -------------------- start --------------------
+  ! Set atpointer when itime matches ireleasestart, get the index of the release time from simulating time
+  ! atpointer is used to write the release/arrival time in the netcdf file
+  do kp = 1, maxpointspec_act
+    if (itime == ireleasestart(kp)) then
+      atpointer(kp) = tpointer
+    else
+      atpointer(kp) = 0
+    end if
+  end do
+
   if (tpointer.eq.1) then
     ! write release/arrival time, by ZW
     do kp=1,maxpointspec_act
-      atpointer(kp) = kp
-      call nf90_err(nf90_put_var( ncid, atimeID, ireleasestart(kp), (/ atpointer(kp) /)))
+      call nf90_err(nf90_put_var( ncid, atimeID, ireleasestart(kp), (/ kp /)))
     end do
 
     ! write seconds from arrival time, by ZW
@@ -1636,6 +1657,22 @@ subroutine concoutput_nest_netcdf(itime,outnum)
   ! Determine the standard deviation of the mean concentration or mixing
   ! ratio (uncertainty of the output) and the dry and wet deposition
   !*********************************************************************
+  ! get the hmix for nest domain from mother domain, and print out 
+  ! -------------------- start --------------------
+  do jy=0,numygridn-1
+    do ix=0,numxgridn-1
+      ! ix_mdomain = int((outlon0n + ix*dxoutn + 180 - 1)/dxout)
+      ! jy_mdomain = int((outlat0n + jy*dyoutn + 90)/dyout)
+      ix_mdomain = int((outlon0n + ix*dxoutn - xlon0)/dx)
+      jy_mdomain = int((outlat0n + jy*dyoutn - ylat0)/dy)
+      hmix_ndomain = hmix(ix_mdomain,jy_mdomain,1,memind(2))    
+      hmix_2dn(ix,jy) = hmix_ndomain
+    end do
+  end do
+
+  call nf90_err(nf90_put_var(ncid,hmix_specIDn(1),hmix_2dn,&
+  (/ 1,1,tpointer /), (/ numxgridn,numygridn,1 /) ))
+  ! -------------------- end --------------------
 
   do ks=1,nspec
 
@@ -1644,16 +1681,6 @@ subroutine concoutput_nest_netcdf(itime,outnum)
 !$OMP DO
         do jy=0,numygridn-1
           do ix=0,numxgridn-1
-
-            ! get the hmix for nest domain from mother domain, and print out 
-            ! -------------------- start --------------------
-            ! ix_mdomain = int((outlon0n + ix*dxoutn + 180 - 1)/dxout)
-            ! jy_mdomain = int((outlat0n + jy*dyoutn + 90)/dyout)
-            ix_mdomain = int((outlon0n + ix*dxoutn - xlon0)/dx)
-            jy_mdomain = int((outlat0n + jy*dyoutn - ylat0)/dy)
-            hmix_ndomain = hmix(ix_mdomain,jy_mdomain,1,memind(2))    
-            hmix_2dn(ix,jy) = hmix_ndomain
-            ! -------------------- end --------------------
 
             ! WET DEPOSITION
             if ((WETDEP).and.(ldirect.gt.0)) then
@@ -1718,9 +1745,6 @@ subroutine concoutput_nest_netcdf(itime,outnum)
 !$OMP END DO
   !       print*,gridtotal,maxpointspec_act
 
-        ! print out hmix, by ZW
-        call nf90_err(nf90_put_var(ncid,hmix_specIDn(ks),hmix_2dn,&
-        (/ 1,1,tpointer /), (/ numxgridn,numygridn,1 /) ))
 
         !*******************************************************************
         ! Generate output: may be in concentration (ng/m3) or in mixing
@@ -1794,33 +1818,33 @@ subroutine concoutput_nest_netcdf(itime,outnum)
           call nf90_err(nf90_put_var(ncid,hmix_acc_specIDn(ks),conc_2dn,&
             (/ 1,1 /), (/ numxgridn,numygridn /) ))
           
-          if ((tpointer.gt.atpointer(kp)) .and. &
-              (tpointer.le.(atpointer(kp)+abs(nint(real(lage(nage))/real(loutstep)))))) then
+          if ((tpointer.ge.atpointer(kp)) .and. &
+              (tpointer.lt.(atpointer(kp)+abs(nint(real(lage(nage))/real(loutstep)))))) then
             call nf90_err(nf90_put_var(ncid,arr_specIDn(ks),conc_3d_byzn,&
-              (/ 1,1,1,tpointer-atpointer(kp),atpointer(kp) /), (/ numxgridn,numygridn,numzwrite,1,1 /) ))
+              (/ 1,1,1,tpointer-atpointer(kp)+1,kp /), (/ numxgridn,numygridn,numzwrite,1,1 /) ))
           endif
           
           if (tpointer.eq.1) then
             if (kp.eq.1) then
-              if ((tpointer.gt.atpointer(kp)) .and. &
-                  (tpointer.le.(atpointer(kp)+abs(nint(real(lage(nage))/real(loutstep)))))) then
+              if ((tpointer.ge.atpointer(kp)) .and. &
+                  (tpointer.lt.(atpointer(kp)+abs(nint(real(lage(nage))/real(loutstep)))))) then
                 call nf90_err(nf90_put_var(ncid,hmix_arr_specIDn(ks),conc_2dn,&
-                  (/ 1,1,tpointer-atpointer(kp),atpointer(kp) /), (/ numxgridn,numygridn,1,1 /) ))
+                  (/ 1,1,tpointer-atpointer(kp)+1,kp /), (/ numxgridn,numygridn,1,1 /) ))
               endif
               conc_2d_lasttimen = conc_2dn
             else
-              if ((tpointer.gt.atpointer(kp)) .and. &
-                  (tpointer.le.(atpointer(kp)+abs(nint(real(lage(nage))/real(loutstep)))))) then
+              if ((tpointer.ge.atpointer(kp)) .and. &
+                  (tpointer.lt.(atpointer(kp)+abs(nint(real(lage(nage))/real(loutstep)))))) then
                 call nf90_err(nf90_put_var(ncid,hmix_arr_specIDn(ks),conc_2dn-conc_2d_lasttimen,&
-                  (/ 1,1,tpointer-atpointer(kp),atpointer(kp) /), (/ numxgridn,numygridn,1,1 /) ))
+                  (/ 1,1,tpointer-atpointer(kp)+1,kp /), (/ numxgridn,numygridn,1,1 /) ))
               endif
               conc_2d_lasttimen = conc_2dn
             endif
           else
-            if ((tpointer.gt.atpointer(kp)) .and. &
-                (tpointer.le.(atpointer(kp)+abs(nint(real(lage(nage))/real(loutstep)))))) then
+            if ((tpointer.ge.atpointer(kp)) .and. &
+                (tpointer.lt.(atpointer(kp)+abs(nint(real(lage(nage))/real(loutstep)))))) then
               call nf90_err(nf90_put_var(ncid,hmix_arr_specIDn(ks),conc_2dn-conc_2d_lasttimen,&
-                (/ 1,1,tpointer-atpointer(kp),atpointer(kp) /), (/ numxgridn,numygridn,1,1 /) ))
+                (/ 1,1,tpointer-atpointer(kp)+1,kp /), (/ numxgridn,numygridn,1,1 /) ))
             endif
             conc_2d_lasttimen = conc_2dn
           endif
