@@ -1020,7 +1020,7 @@ subroutine concoutput_netcdf(itime,outnum,gridtotalunc,wetgridtotalunc,drygridto
   ! from the beginning of the simulation, can be started from 0. tpointer is the time counter
   ! itime here is starting from 1xloutstep (-3600)
 
-  if (itime-loutstep.le.ireleasestart(maxpointspec_act)) then
+  if (abs(itime-loutstep).le.abs(ireleasestart(maxpointspec_act))) then
     do kp = 1, maxpointspec_act
       if (itime-loutstep == ireleasestart(kp)) then
         atpointer(kp) = tpointer
@@ -1536,7 +1536,7 @@ subroutine concoutput_nest_netcdf(itime,outnum)
   ! from the beginning of the simulation, can be started from 0. tpointer is the time counter
   ! itime here is starting from 1xloutstep (-3600)
 
-  if (itime-loutstep.le.ireleasestart(maxpointspec_act)) then
+  if (abs(itime-loutstep).le.abs(ireleasestart(maxpointspec_act))) then
     do kp = 1, maxpointspec_act
       if (itime-loutstep == ireleasestart(kp)) then
         atpointer(kp) = tpointer
