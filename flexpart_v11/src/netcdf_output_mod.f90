@@ -1017,10 +1017,8 @@ subroutine concoutput_netcdf(itime,outnum,gridtotalunc,wetgridtotalunc,drygridto
   ! Set atpointer when itime matches ireleasestart, get the index of the release time from simulating time
   ! atpointer is used to write the release/arrival time in the netcdf file
   do kp = 1, maxpointspec_act
-    if (itime == ireleasestart(kp)) then
+    if (itime-loutstep == ireleasestart(kp)) then
       atpointer(kp) = tpointer
-    else
-      atpointer(kp) = 0
     end if
   end do
 
@@ -1528,11 +1526,12 @@ subroutine concoutput_nest_netcdf(itime,outnum)
   ! -------------------- start --------------------
   ! Set atpointer when itime matches ireleasestart, get the index of the release time from simulating time
   ! atpointer is used to write the release/arrival time in the netcdf file
+  ! ireleasestart(numpoint)=int((jul1-bdate)*86400.), ireleasestart is the time in seconds 
+  ! from the beginning of the simulation, can be started from 0. tpointer is the time counter
+  ! itime here is starting from 1xloutstep (-3600)
   do kp = 1, maxpointspec_act
-    if (itime == ireleasestart(kp)) then
+    if (itime-loutstep == ireleasestart(kp)) then
       atpointer(kp) = tpointer
-    else
-      atpointer(kp) = 0
     end if
   end do
 

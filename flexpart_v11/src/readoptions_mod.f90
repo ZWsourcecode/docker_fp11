@@ -2282,6 +2282,7 @@ subroutine readreleases
 
   do i=1,numpoint
     xmasssave(i)=0.
+    atpointer(i)=0 ! by ZW
   end do
 
   !now save the information
