@@ -600,23 +600,23 @@ subroutine writeheader_netcdf(lnest)
 
     ! concentration output
     if ((iout.eq.1).or.(iout.eq.3).or.(iout.eq.5)) then
-      call nf90_err(nf90_def_var(ncid,'spec'//anspec//'_mr', nf90_float, dIDs, sID , &
-           deflate_level = deflate_level,  &
-           chunksizes = chunksizes ))
-      call nf90_err(nf90_put_att(ncid, sID, 'units', units))
-      call nf90_err(nf90_put_att(ncid, sID, 'long_name', species(i)))
-      call nf90_err(nf90_put_att(ncid, sID, 'decay', decay(i)))
-      call nf90_err(nf90_put_att(ncid, sID, 'weightmolar', weightmolar(i)))
+      ! call nf90_err(nf90_def_var(ncid,'spec'//anspec//'_mr', nf90_float, dIDs, sID , &
+      !      deflate_level = deflate_level,  &
+      !      chunksizes = chunksizes ))
+      ! call nf90_err(nf90_put_att(ncid, sID, 'units', units))
+      ! call nf90_err(nf90_put_att(ncid, sID, 'long_name', species(i)))
+      ! call nf90_err(nf90_put_att(ncid, sID, 'decay', decay(i)))
+      ! call nf90_err(nf90_put_att(ncid, sID, 'weightmolar', weightmolar(i)))
     !        call nf90_err(nf90_put_att(ncid, sID, 'ohreact', ohreact(i)))
 !      call nf90_err(nf90_put_att(ncid, sID, 'ohcconst', ohcconst(i)))
 !      call nf90_err(nf90_put_att(ncid, sID, 'ohdconst', ohdconst(i)))
 !      call nf90_err(nf90_put_att(ncid, sID, 'vsetaver', vsetaver(i)))
 
-      if (lnest) then
-         specIDn(i) = sID
-      else
-         specID(i) = sID
-      endif
+      ! if (lnest) then
+      !    specIDn(i) = sID
+      ! else
+      !    specID(i) = sID
+      ! endif
 
       ! To print concentration within mixing height, added by ZW
       ! -------------------- start --------------------
@@ -1016,11 +1016,17 @@ subroutine concoutput_netcdf(itime,outnum,gridtotalunc,wetgridtotalunc,drygridto
   ! -------------------- start --------------------
   ! Set atpointer when itime matches ireleasestart, get the index of the release time from simulating time
   ! atpointer is used to write the release/arrival time in the netcdf file
-  do kp = 1, maxpointspec_act
-    if (itime-loutstep == ireleasestart(kp)) then
-      atpointer(kp) = tpointer
-    end if
-  end do
+  ! ireleasestart(numpoint)=int((jul1-bdate)*86400.), ireleasestart is the time in seconds 
+  ! from the beginning of the simulation, can be started from 0. tpointer is the time counter
+  ! itime here is starting from 1xloutstep (-3600)
+
+  if (itime-loutstep.le.ireleasestart(maxpointspec_act)) then
+    do kp = 1, maxpointspec_act
+      if (itime-loutstep == ireleasestart(kp)) then
+        atpointer(kp) = tpointer
+      end if
+    end do
+  end if
 
   ! when simulation starts (itime is 1), initialize arrival time (atime) and sfromatime (particle filetime)
   if (tpointer.eq.1) then
@@ -1315,9 +1321,9 @@ subroutine concoutput_netcdf(itime,outnum,gridtotalunc,wetgridtotalunc,drygridto
 !          call nf90_err(nf90_put_var(ncid,specID(ks),grid(0:numxgrid-1,0:numygrid-1,&
 !             1:numzgrid)*factor3d(0:numxgrid-1,0:numygrid-1,1:numzgrid)/tot_mu(ks,kp),&
 !               (/ 1,1,1,tpointer,kp,nage /), (/ numxgrid,numygrid,numzgrid,1,1,1 /) ))
-          call nf90_err(nf90_put_var(ncid,specID(ks),grid(0:numxgrid-1,0:numygrid-1,&
-             1:numzwrite)*factor3d(0:numxgrid-1,0:numygrid-1,1:numzwrite)/tot_mu(ks,kp),&
-               (/ 1,1,1,tpointer,kp,nage /), (/ numxgrid,numygrid,numzwrite,1,1,1 /) ))
+          ! call nf90_err(nf90_put_var(ncid,specID(ks),grid(0:numxgrid-1,0:numygrid-1,&
+          !    1:numzwrite)*factor3d(0:numxgrid-1,0:numygrid-1,1:numzwrite)/tot_mu(ks,kp),&
+          !      (/ 1,1,1,tpointer,kp,nage /), (/ numxgrid,numygrid,numzwrite,1,1,1 /) ))
           
           ! To print concentration within mixing height, added by ZW
           ! -------------------- start --------------------
@@ -1529,11 +1535,14 @@ subroutine concoutput_nest_netcdf(itime,outnum)
   ! ireleasestart(numpoint)=int((jul1-bdate)*86400.), ireleasestart is the time in seconds 
   ! from the beginning of the simulation, can be started from 0. tpointer is the time counter
   ! itime here is starting from 1xloutstep (-3600)
-  do kp = 1, maxpointspec_act
-    if (itime-loutstep == ireleasestart(kp)) then
-      atpointer(kp) = tpointer
-    end if
-  end do
+
+  if (itime-loutstep.le.ireleasestart(maxpointspec_act)) then
+    do kp = 1, maxpointspec_act
+      if (itime-loutstep == ireleasestart(kp)) then
+        atpointer(kp) = tpointer
+      end if
+    end do
+  end if
 
   if (tpointer.eq.1) then
     ! write release/arrival time, by ZW
@@ -1776,9 +1785,9 @@ subroutine concoutput_nest_netcdf(itime,outnum)
 !          call nf90_err(nf90_put_var(ncid,specIDn(ks),grid(0:numxgridn-1,0:numygridn-1,&
 !             1:numzgrid)*factor3d(0:numxgridn-1,0:numygridn-1,1:numzgrid)/tot_mu(ks,kp),&
 !               (/ 1,1,1,tpointer,kp,nage /), (/ numxgridn,numygridn,numzgrid,1,1,1 /)))
-          call nf90_err(nf90_put_var(ncid,specIDn(ks),grid(0:numxgridn-1,0:numygridn-1,&
-             1:numzwrite)*factor3d(0:numxgridn-1,0:numygridn-1,1:numzwrite)/tot_mu(ks,kp),&
-               (/ 1,1,1,tpointer,kp,nage /), (/ numxgridn,numygridn,numzwrite,1,1,1 /)))
+          ! call nf90_err(nf90_put_var(ncid,specIDn(ks),grid(0:numxgridn-1,0:numygridn-1,&
+          !    1:numzwrite)*factor3d(0:numxgridn-1,0:numygridn-1,1:numzwrite)/tot_mu(ks,kp),&
+          !      (/ 1,1,1,tpointer,kp,nage /), (/ numxgridn,numygridn,numzwrite,1,1,1 /)))
           
           ! To print concentration within mixing height, added by ZW
           ! -------------------- start --------------------
