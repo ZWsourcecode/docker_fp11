@@ -89,21 +89,25 @@ RUN pip3 install --upgrade setuptools
 RUN pip3 install -r requirements.txt
 
 # install fluxpart
-COPY flexpart_v10.4 /usr/local/flexpart_v10.4
-COPY makefile.ecmwf.gfortran.flexpart10.4 /usr/local/flexpart_v10.4/src/makefile
-RUN cd /usr/local/flexpart_v10.4/src && make clean && make ncf=yes
+COPY flexpart_v11 /usr/local/flexpart_v11
+# In order to apply OpenMP, execute following commands and then compile 
+# RUN ulimit -s unlimited
+# ENV OMP_PLACES=cores
+# ENV OMP_PROC_BIND=true
+# ENV OMP_NUM_THREADS=10
+RUN cd /usr/local/flexpart_v11/src 
+RUN make clean && make -j -f makefile_gfortran_flexpart11 eta=no ncf=yes
 
 WORKDIR /flexpart
-RUN cp -r /usr/local/flexpart_v10.4/options /flexpart/  && \
-    cp /usr/local/flexpart_v10.4/pathnames /flexpart/
+RUN cp -r /usr/local/flexpart_v11/options /flexpart/  && \
+    cp /usr/local/flexpart_v11/pathnames /flexpart/
 COPY *.sh /flexpart/
 COPY *.py /flexpart/
+COPY *.conf /flexpart/
 
 RUN chmod +x setattribute_mon.sh setattribute_mon_eu.sh
 
-
-# ENV OMPI_MCA_btl_vader_single_copy_mechanism=none
-# ENV orte_base_help_aggregate=0
+RUN dos2unix *.conf 
 
 ENV PATH=/usr/local/flexpart_v10.4/src/:$PATH  
 ENV FLEXPARTPATH=/usr/local/flexpart_v10.4/src/
