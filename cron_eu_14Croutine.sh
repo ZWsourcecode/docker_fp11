@@ -4,7 +4,7 @@
 ### run : bash cron_eu_14Croutine.sh 9 inputs 
 ### zhendong.wu@nateko.lu.se
 
-FLEXPARTPATH="/usr/local/flexpart_v10.4/src"
+FLEXPARTPATH="/usr/local/flexpart_v11/src"
 F_PATH="/flexpart"
 project="C14eu"
 
@@ -40,7 +40,7 @@ echo simulating $simulationid $start
 cd $F_PATH
 
 # Prepare input and genereate settings for flexpart simulations
-bash flexpartset_eu_14Croutine.sh $simulationidproject ${input}${year}/ $output $id $start $end $step $lon $lat $z $particles
+bash flexpart11set_eu_14Croutine.sh $simulationidproject ${input}${year}/ $output $id $start $end $step $lon $lat $z $particles
 
 # Change to option directory
 cd $F_PATH/$simulationidproject/$start
