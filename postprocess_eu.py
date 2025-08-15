@@ -43,7 +43,7 @@ def parallel_footprint(npoint, IN_PATH, OUT_PATH, darray_fp, darray_hmix, pd_ati
     fp_10day = darray_fp.isel(atime=npoint)
     # find time index of atime in simulation time, the simulation time and arriveing time may be different 
     hmix_index = pd_time.get_loc(pd_atime[npoint])
-    hmix_10day = darray_hmix.isel(time=slice(hmix_index+1,hmix_index+240+1))
+    hmix_10day = darray_hmix.isel(time=slice(hmix_index,hmix_index+240))
     
     try:
         # (s m3 kg-1) / m * (0.02897 kg mol-1) = s m2 mol-1 = ppm / (micromoles m-2 s-1) 
@@ -115,7 +115,7 @@ def loop_footprint (npoint, IN_PATH, OUT_PATH, darray_fp, darray_hmix, pd_atime,
     fp_10day = darray_fp.isel(atime=npoint)
     # find time index of atime in simulation time, the simulation time and arriveing time may be different 
     hmix_index = pd_time.get_loc(pd_atime[npoint])
-    hmix_10day = darray_hmix.isel(time=slice(hmix_index+1,hmix_index+240+1))
+    hmix_10day = darray_hmix.isel(time=slice(hmix_index,hmix_index+240))
     
     try:
         # (s m3 kg-1) / m * (0.02897 kg mol-1) = s m2 mol-1 = ppm / (micromoles m-2 s-1) 
