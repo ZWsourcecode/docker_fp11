@@ -104,6 +104,7 @@ RUN cp -r /usr/local/flexpart_v11/options /flexpart/  && \
 COPY *.sh /flexpart/
 COPY *.py /flexpart/
 COPY *.conf /flexpart/
+COPY .env /flexpart/
 
 RUN chmod +x setattribute_mon.sh setattribute_mon_eu.sh
 
