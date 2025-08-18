@@ -445,7 +445,7 @@ print("Start uploading ...")
 local_file_path = ATT_PATH+"/" + Filename
 
 # Remote directory and file name
-remote_directory = '/data/CPrequests/icoscp/'+Station+"/" + str(Year)+"/"+str(Month).zfill(2)
+remote_directory = '/data/CPrequests/icoscp_v11/'+Station+"/" + str(Year)+"/"+str(Month).zfill(2)
 remote_file_name = Filename
 
 
