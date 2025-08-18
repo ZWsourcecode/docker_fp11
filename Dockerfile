@@ -88,6 +88,9 @@ RUN python3 -m pip install --upgrade pip
 RUN pip3 install --upgrade setuptools
 RUN pip3 install -r requirements.txt
 
+# install dos2unix
+RUN apt-get install -y dos2unix
+
 # install fluxpart
 COPY flexpart_v11 /usr/local/flexpart_v11
 # In order to apply OpenMP, execute following commands and then compile 
