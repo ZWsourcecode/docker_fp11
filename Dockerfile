@@ -95,7 +95,7 @@ COPY flexpart_v11 /usr/local/flexpart_v11
 # ENV OMP_PLACES=cores
 # ENV OMP_PROC_BIND=true
 # ENV OMP_NUM_THREADS=10
-RUN cd /usr/local/flexpart_v11/src && make clean && make -j -f makefile_gfortran_flexpart11 eta=no ncf=yes
+RUN cd /usr/local/flexpart_v11/src && make -j -f makefile_gfortran_flexpart11 eta=no ncf=yes
 
 WORKDIR /flexpart
 RUN cp -r /usr/local/flexpart_v11/options /flexpart/  && \
