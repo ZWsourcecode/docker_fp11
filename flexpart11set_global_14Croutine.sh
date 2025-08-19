@@ -70,9 +70,12 @@ cat <<EOM >${WORK_PATH}/options/AGECLASSES
 *time a particle is carried in the simulation. *
 *                                              *
 ************************************************
+&NAGE
+ NAGECLASS=          1, ! Number of ageclasses for the age spectra calculation
+ /
+
 &AGECLASS
- NAGECLASS=          1,
- LAGE=    $(( $LIFETIME * 24 * 60 * 60 )),
+ LAGE=    $(( $LIFETIME * 24 * 60 * 60 )),      ! Maximum age of particles in seconds for each ageclass
  /
 EOM
 
