@@ -47,7 +47,7 @@ RUN tar -xvf hdf5-1.10.6.tar.gz && \
 	cd hdf5-1.10.6 && \
 	./configure --with-zlib=/usr/local/nc/zlib --with-szlib=/usr/local/nc/szip --prefix=/usr/local/nc/hdf5  --enable-hl CFLAGS=-fPIC && \
 	make install
-ENV LD_LIBRARY_PATH=/usr/local/nc/hdf5/lib:/usr/local/nc/zlib/lib:$LD_LIBRARY_PATH
+# ENV LD_LIBRARY_PATH=/usr/local/nc/hdf5/lib:/usr/local/nc/zlib/lib:$LD_LIBRARY_PATH
 ENV PATH=/usr/local/nc/hdf5/bin:$PATH  
 
 # inatall netcdf
