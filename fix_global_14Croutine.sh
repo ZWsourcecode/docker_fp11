@@ -4,7 +4,7 @@
 ### run : bash fix_global.sh 11 inputs 
 ### zhendong.wu@nateko.lu.se
 
-FLEXPARTPATH="/usr/local/flexpart_v10.4/src"
+FLEXPARTPATH="/usr/local/flexpart_v11/src"
 F_PATH="/flexpart"
 project="C14"
 

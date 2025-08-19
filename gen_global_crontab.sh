@@ -10,7 +10,7 @@ ID=24              # Species ID (currently only supports one)
 STEP=1             # Time step in hours
 PARTICLES=100      # Number of particles to be released
 
-START_HOUR=15      # First job starts at 15:20
+START_HOUR=14      # First job starts at 15:20
 START_MIN=20
 
 # --- Initial Time Setup ---
