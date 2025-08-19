@@ -220,7 +220,7 @@ cat <<EOM >${WORK_PATH}/options/OUTGRID
 ! OUTHEIGHTS = HEIGHT OF LEVELS (UPPER BOUNDARY)                               *
 !*******************************************************************************
 &OUTGRID
- OUTLON0=    -180.00,
+ OUTLON0=    -179.00,
  OUTLAT0=     -90.00,
  NUMXGRID=       360,
  NUMYGRID=       180,

@@ -59,7 +59,7 @@ RUN unzip jasper-1.900.1.zip && \
     cd jasper-1.900.1 && \
     ./configure -prefix=/usr/local/jasper CFLAGS=-fPIC && \
     make install 
-ENV LD_LIBRARY_PATH=/usr/local/jasper/lib:$LD_LIBRARY_PATH 
+# ENV LD_LIBRARY_PATH=/usr/local/jasper/lib:$LD_LIBRARY_PATH 
 
 # install eccodes and emoslib
 RUN apt-get -yq install python3-eccodes libeccodes-dev libemos-dev
