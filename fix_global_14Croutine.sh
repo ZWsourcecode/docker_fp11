@@ -47,7 +47,7 @@ do
     cd $F_PATH/$simulationidproject/$from
 
     # Launch FLEXPART in background and capture PID of the background process
-    nohup $FLEXPARTPATH/FLEXPART pathnames >${output}${from}/log 2>&1 & 
+    nohup $FLEXPARTPATH/FLEXPART_ETA pathnames >${output}${from}/log 2>&1 & 
     PID=$!
 
     echo "FLEXPART started with PID $PID, waiting for it to complete..."

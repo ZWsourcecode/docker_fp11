@@ -49,7 +49,7 @@ cd $F_PATH/$simulationidproject/$start
 # nohup mpirun -n 2 --allow-run-as-root $FLEXPARTPATH/FLEXPART_MPI pathnames >${output}${start}/log 2>&1 & 
 
 # Launch FLEXPART in background and capture PID of the background process
-nohup $FLEXPARTPATH/FLEXPART pathnames >${output}${start}/log 2>&1 & 
+nohup $FLEXPARTPATH/FLEXPART_ETA pathnames >${output}${start}/log 2>&1 & 
 
 # Change back to root path
 cd $F_PATH
