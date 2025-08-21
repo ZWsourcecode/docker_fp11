@@ -188,6 +188,12 @@ def get_footprint(prefix, IN_PATH, OUT_PATH, Station, Project, Year, Month, Day,
     darray_hmix_nest = ds_flexp_nest.hmix
     
     # atime is arriving time( or particle release time) 
+    # Shift atime one hour earlier, this is to match the time in hmix.
+    # The particle release at the beginning of the hour, the output happens at the end of the hour time (i.e. the beginning of next hour).
+    # before e.g. atime 20250702 T 00:00:00 represent 20250701 T 23:00:00 to 20250702 T 00:00:00
+    # now e.g. atime 20250701 T 23:00:00 represent 20250701 T 23:00:00 to 20250702 T 00:00:00
+    darray_fp = darray_fp.assign_coords(atime=darray_fp.atime - pd.Timedelta(hours=1))
+    darray_fp_nest = darray_fp_nest.assign_coords(atime=darray_fp_nest.atime - pd.Timedelta(hours=1))
     pd_atime = pd.to_datetime(np.array(darray_fp.atime))
     # time is simulation time
     pd_time = pd.to_datetime(np.array(darray_hmix.time))
@@ -336,31 +342,6 @@ Aabs = 0.226 # Bq/gC
 
 # Radiocarbon (14CO2) emissions from nuclear facilities in 2020
 # The data is derived from the European Commission RAdioactive Discharges Database(RADD, Zazzeri et al. (2018)).
-
-# PATH_NUCLEAR = IN_PATH+"flux/"
-# darray_Q = xr.open_dataarray(PATH_NUCLEAR+"Radiocarbon_nuclear_emissions_2022_eu.nc")
-# darray_Q = darray_Q.astype(np.float64)
-
-# lst_QF = [] 
-# delta_14C = pd.DataFrame()
-# delta_14C["UTC"] = []
-# delta_14C["14C"] = []
-# for Hour in range(24):
-#     floder_Flexpart = str(Year)+"x"+str(Month).zfill(2)+"x"+str(Day).zfill(2)+"x"+str(Hour).zfill(2)
-#     darray_flexpart = xr.open_dataarray(ATT_PATH+"/"+floder_Flexpart+"/foot_nest", engine='netcdf4')
-#     darray_flexpart = darray_flexpart.astype(np.float64)
-#     # QF: ppm Bq micromol-1
-#     darray_QF = np.array(darray_Q)*np.array(darray_flexpart)[0,:,:]
-#     # QF: ppm Bq mol-1
-#     QF = darray_QF.sum()*1e6
-#     lst_QF.append(QF)
-#     delta_14C.loc[Hour,"UTC"] = np.datetime_as_string(darray_flexpart.time, unit='s').item()
-#     delta_14C.loc[Hour,"14C"] = round(QF/(Xco2 * Mc * Aabs) * 1000,3)
-# delta_14C["ifkeep"] = delta_14C["14C"] < 0.5
-# Filename = "delta_14C_" + Station + "_" + simulate_date + ".csv"
-# delta_14C.to_csv(ATT_PATH+"/" + Filename, header=True,index=False, na_rep= "NaN")
-
-# unclear emission based on the year
 strYear = '2022'
 PATH_NUCLEAR = IN_PATH+"flux/"
 df_nuclear = pd.read_csv(PATH_NUCLEAR+"emission_dataset_2023_10_27.csv")
@@ -371,8 +352,8 @@ df_nuclear['lon'] = pd.to_numeric(df_nuclear['lon'], errors='coerce')
 
 lon_global = np.arange(-179.95,180,0.1)
 lat_global = np.arange(-89.95,90,0.1)
-da_global_14co2 = xr.DataArray(0.0, coords=[lat_global,lon_global], dims= ["lat","lon"])
-da_eu_14co2 = da_global_14co2.sel(lon=slice(-15,35),lat=slice(33,73))
+# da_global_14co2 = xr.DataArray(0.0, coords=[lat_global,lon_global], dims= ["lat","lon"])
+# da_eu_14co2 = da_global_14co2.sel(lon=slice(-15,35),lat=slice(33,73))
 
 da_global_area = xr.DataArray(grid_area(0.1), coords=[lat_global,lon_global], dims= ["lat","lon"])
 da_eu_area = da_global_area.sel(lon=slice(-15,35),lat=slice(33,73))
@@ -447,25 +428,6 @@ local_file_path = ATT_PATH+"/" + Filename
 # Remote directory and file name
 remote_directory = '/data/CPrequests/icoscp_v11/'+Station+"/" + str(Year)+"/"+str(Month).zfill(2)
 remote_file_name = Filename
-
-
-# # Connect to the SFTP server
-# with pysftp.Connection(host, username=username, password=password, port=port) as sftp:
-#     print(f"Connected to {host}")
-
-#     # Check if the remote directory exists; if not, create it
-#     if not sftp.exists(remote_directory):
-#         sftp.makedirs(remote_directory)
-#         print(f"Created remote directory: {remote_directory}")
-
-#     # Change to the remote directory
-#     sftp.cwd(remote_directory)
-
-#     # Upload the file
-#     sftp.put(local_file_path, remote_file_name)
-#     print(f"File '{local_file_path}' uploaded to '{remote_directory}/{remote_file_name}'")
-
-# print("SFTP connection closed.")
 
 upload_to_sftp(host, port, username, password, local_file_path, remote_directory,remote_file_name)
 
