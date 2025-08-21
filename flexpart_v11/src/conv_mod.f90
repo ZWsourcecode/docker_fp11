@@ -2004,8 +2004,12 @@ end subroutine redist
   if (nconvtop.lt.nconvlevmax-1) then 
     nconvtop=nconvtop+1
   else
-    error stop 'Convection reaches top level of input data. &
-      More levels are needed.'
+    ! Stop convection at the top level, do not proceed further (as flexpart 10.4 do),  by ZW
+    write(*,*) 'Attention, convection only calculated up to the top level of meteo input , current convection level is', &
+    nconvtop,' the top level of meteo is',nconvlevmax-1
+    nconvtop = nconvlevmax-1
+    ! error stop 'Convection reaches top level of input data. &
+    !   More levels are needed.'
   end if
   RETURN
   !
