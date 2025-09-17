@@ -336,10 +336,6 @@ except:
                      names=['year','month', 'decimal', 'average','average_unc','trend','trend_unc'], skiprows=40,delimiter=r"\s+")
 
 
-Xco2 = co2_global['average'].iloc[-1] # NOAA global monthly Average CO2, ppm
-Mc = 12 # g/mol
-Aabs = 0.226 # Bq/gC
-
 # Radiocarbon (14CO2) emissions from nuclear facilities in 2020
 # The data is derived from the European Commission RAdioactive Discharges Database(RADD, Zazzeri et al. (2018)).
 strYear = '2022'
