@@ -117,7 +117,7 @@ do
 	i=$(( i - $step ))
 
  	thedate=$(date -u -d "$end -$i hours")
-	
+	releaseno=$(( releaseno + 1 ))
 cat <<EOM >>${WORK_PATH}/options/RELEASES
 &RELEASE                   ! For each release 
 IDATE1  =       $IDATE1, ! Release start date, YYYYMMDD: YYYY=year, MM=month, DD=day

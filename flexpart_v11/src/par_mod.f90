@@ -187,7 +187,7 @@ module par_mod
   ! Sabine Eckhardt: change of landuse inventary numclass=13
 
   integer,parameter :: maxtable=1000, numclass=13
-  integer,parameter :: numpf=1 ! number of precip fields original =1, new=3(AT and PS, #295)
+  integer,parameter :: numpf=3 ! number of precip fields original =1, new=3(AT and PS, #295)
   integer,parameter :: numwfmem=2 ! Serial version/MPI with 2 fields
   integer,parameter :: maxndia=1
   !integer,parameter :: numwfmem=3 ! MPI with 3 fields
