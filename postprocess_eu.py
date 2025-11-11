@@ -17,6 +17,7 @@ import subprocess
 # import pysftp
 import paramiko
 import requests
+from shared import merge_month
 
 # Define function
 def grid_area (resolution=0.5):
@@ -209,7 +210,7 @@ def get_footprint(prefix, IN_PATH, OUT_PATH, Station, Project, Year, Month, Day,
         # loop_footprint(npoint, IN_PATH, OUT_PATH, darray_fp_nest, darray_hmix_nest, pd_atime, pd_time, ifnest=1)
         if npoint % 10 ==0:
             print(npoint, end="...")
-    print("done")
+    print("extract footprint is done")
 
 def upload_to_sftp(hostname, port, username, password, local_file_path, remote_directory, remote_file_name):
     # Create an SSH client
@@ -301,7 +302,7 @@ try:
 except subprocess.CalledProcessError as e:
     print(f"Error: {e}")
 
-print("Done")
+print("set attribute is done")
 
 # ------------------------------------------------
 # Calculate delta radiocarbon contribution, permil
@@ -397,7 +398,8 @@ delta_14C.to_csv(ATT_PATH+"/" + Filename, header=True,index=False, na_rep= "NaN"
 # df_delta14C_NPP.to_csv(ATT_PATH+"/" + Filename, header=True,index=False, na_rep= "NaN")
 
 print("Calculation of delta 14C is done")
-
+MONTH_PATH = IN_PATH+"flexpartweb/"
+merge_month(MONTH_PATH, Station.upper(), date_object, domain="eu")
 
 # ------------------------------------------------
 # upload data
