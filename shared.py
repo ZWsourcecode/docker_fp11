@@ -210,6 +210,7 @@ def cal_ffco2(PATH_FF, ATT_PATH, Station, Year, Month, Day, domain="global"):
     """Calculate fossil-fuel CO2 at a station for one day using
     GCP emissions and a merged FLEXPART footprint file."""
     # choose ff emission file 
+    Station_lower = Station.lower()
     if domain == "global":
         ds = xr.open_dataset(PATH_FF + "GCP_GridFED_ff_1deg_2024.nc")
     elif domain == "eu":
@@ -257,7 +258,7 @@ def cal_ffco2(PATH_FF, ATT_PATH, Station, Year, Month, Day, domain="global"):
         df_ffco2.loc[strHour] = [dt, round(total, 3)]
     # write csv if requested
     simulate_date = f"{Year}{str(Month).zfill(2)}{str(Day).zfill(2)}"
-    Filename_ff = f"ffco2_{Station}_{simulate_date}.csv"
+    Filename_ff = f"ffco2_{Station_lower}_{simulate_date}.csv"
     outpath = join(ATT_PATH, Filename_ff)
     df_ffco2.to_csv(outpath, index=False)
 
