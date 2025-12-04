@@ -92,9 +92,9 @@ def process_station_for_period(station, start_date, end_date, domain, mode='both
             Path(ATT_PATH).mkdir(parents=True, exist_ok=True)
             try:
                 cal_ffco2(PATH_FF, ATT_PATH, station_upper, Year, Month, Day, domain=domain)
-                print(f"  ✓ {station_upper} {day} done", flush=True)
+                print(f"{station_upper} {day} done", flush=True)
             except Exception as e:
-                print(f"  ✗ Error calculating ffco2 for {station_upper} {day}: {e}", flush=True)
+                print(f"Error calculating ffco2 for {station_upper} {day}: {e}", flush=True)
             day_count += 1
 
     print(f"Processed {day_count} day(s) for {station_upper}", flush=True)
