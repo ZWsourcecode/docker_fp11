@@ -17,7 +17,7 @@ import subprocess
 # import pysftp
 import paramiko
 import requests
-from shared import merge_month
+from shared import merge_month, cal_ffco2
 
 # Define function
 def grid_area (resolution=0.5):
@@ -391,7 +391,8 @@ for strHour in Hour_columns:
         QF = QF.values.item()
         # delta14C: permil
         df_delta14C_NPP.loc[i,strHour] = round(QF/(Xco2 * Mc * Aabs) * 1000,5)
-        delta_14C.loc[strHour,"14C"] = delta_14C.loc[strHour,"14C"] + round(QF/(Xco2 * Mc * Aabs) * 1000,5)
+        delta_14C.loc[strHour,"14C"] = delta_14C.loc[strHour,"14C"] + QF/(Xco2 * Mc * Aabs) * 1000
+    delta_14C.loc[strHour,"14C"] = round(delta_14C.loc[strHour,"14C"],5)
 delta_14C["ifkeep"] = delta_14C["14C"] < 0.5
 simulate_date = str(Year)+str(Month).zfill(2)+str(Day).zfill(2)
 Filename = "delta_14C_" + Station + "_" + simulate_date + ".csv"
@@ -402,6 +403,15 @@ delta_14C.to_csv(ATT_PATH+"/" + Filename, header=True,index=False, na_rep= "NaN"
 print("Calculation of delta 14C is done")
 MONTH_PATH = IN_PATH+"flexpartweb/"
 merge_month(MONTH_PATH, Station.upper(), date_object, domain="global")
+
+# ------------------------------------------------
+# calculate fossil fuel concentration, ppm
+# ------------------------------------------------
+print("Calculate fossil fuel concentration")
+PATH_FF = IN_PATH+"flux/"
+cal_ffco2(PATH_FF, ATT_PATH, Station, Year, Month, Day, domain="global")
+print("Calculation of fossil fuel concentration is done")
+merge_month(MONTH_PATH, Station.upper(), date_object, domain="global", prefix="ffco2")
 
 # ------------------------------------------------
 # upload data

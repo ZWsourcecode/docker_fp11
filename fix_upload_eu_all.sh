@@ -53,7 +53,7 @@ while [ "$current_date" != "$END_DATE" ]; do
         echo "  Station: ${station}  Date: ${current_date}  CPU: ${cpuid} -> log: ${log_file}"
         # run postprocess.py (assumes it handles EU upload). run in background pinned to cpuid
         nohup bash -c "taskset -c ${cpuid} python3 ${POSTPROCESS_SCRIPT} ${station} ${current_date}" > "${log_file}" 2>&1 &
-        sleep 3m
+        sleep 2m
     done
 
     # increment date by one day

@@ -55,7 +55,7 @@ while [ "$current_date" != "$END_DATE" ]; do
         # run postprocess.py (assumes it handles upload). run in background pinned to cpuid
         nohup bash -c "taskset -c ${cpuid} python3 ${POSTPROCESS_SCRIPT} ${station} ${current_date}" > "${log_file}" 2>&1 &
         # small delay to avoid overwhelming system
-        sleep 3m
+        sleep 2m
     done
 
     # increment date by one day
