@@ -407,9 +407,9 @@ merge_month(MONTH_PATH, Station.upper(), date_object, domain="eu")
 # ------------------------------------------------
 print("Calculate fossil fuel concentration")
 PATH_FF = IN_PATH+"flux/"
-cal_ffco2(PATH_FF, ATT_PATH, Station, Year, Month, Day, domain="global")
+cal_ffco2(PATH_FF, ATT_PATH, Station, Year, Month, Day, domain="eu")
 print("Calculation of fossil fuel concentration is done")
-merge_month(MONTH_PATH, Station.upper(), date_object, domain="global", prefix="ffco2")
+merge_month(MONTH_PATH, Station.upper(), date_object, domain="eu", prefix="ffco2")
 
 # ------------------------------------------------
 # upload data
