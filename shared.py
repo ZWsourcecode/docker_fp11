@@ -259,6 +259,8 @@ def cal_ffco2(PATH_FF, ATT_PATH, Station, Year, Month, Day, domain="global"):
     # write csv if requested
     simulate_date = f"{Year}{str(Month).zfill(2)}{str(Day).zfill(2)}"
     Filename_ff = f"ffco2_{Station_lower}_{simulate_date}.csv"
+    if domain == "eu":
+        Filename_ff = f"ffco2_{Station_lower}_{simulate_date}eu.csv"    
     outpath = join(ATT_PATH, Filename_ff)
     df_ffco2.to_csv(outpath, index=False)
 
