@@ -15,9 +15,8 @@ from os.path import isfile, join, exists
 import sys
 import subprocess
 # import pysftp
-import paramiko
 import requests
-from shared import merge_month, cal_ffco2
+from shared import merge_month, cal_ffco2, upload_to_sftp
 
 # Define function
 def grid_area (resolution=0.5):
@@ -213,55 +212,6 @@ def get_footprint(prefix, IN_PATH, OUT_PATH, Station, Project, Year, Month, Day,
             print(npoint, end="...")
     print("extract footprint is done")
 
-def upload_to_sftp(hostname, port, username, password, local_file_path, remote_directory, remote_file_name):
-    # Create an SSH client
-    ssh = paramiko.SSHClient()
-
-    # Automatically add the server's host key (this is insecure; see comments below)
-    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-
-    try:
-        # Connect to the SFTP server
-        ssh.connect(hostname, port, username, password)
-
-        # Create an SFTP client
-        sftp = ssh.open_sftp()
-
-        try:
-            # Create the remote directory if it doesn't exist
-            current_path = '/'
-            # Create the remote directory if it doesn't exist
-            dirs = remote_directory.split('/')
-            for dir_name in dirs:
-                if dir_name:
-                    current_path = current_path + dir_name + '/'
-                    try:
-                        sftp.stat(current_path)
-                    except IOError as e:
-                        sftp.mkdir(current_path)
-                        print(f"Created directory: {current_path}")
-            # try:
-            #     sftp.stat(remote_directory)
-            # except FileNotFoundError:
-            #     sftp.mkdir(remote_directory)
-
-            # Upload the local file to the remote directory
-            sftp.put(local_file_path, f"{remote_directory}/{remote_file_name}")
-                # Change to the remote directory
-            # sftp.cwd(remote_directory)
-
-            # # Upload the file
-            # sftp.put(local_file_path, remote_file_name)
-
-            print(f"File '{local_file_path}' uploaded to '{remote_directory}' on {hostname}")
-
-        finally:
-            # Close the SFTP connection
-            sftp.close()
-
-    finally:
-        # Close the SSH connection
-        ssh.close()    
 
 # ------------------------------------------------
 # Extract aggregated Flexpart footprint, and convert unit to  ppm / (micromoles m-2 s-1)
@@ -409,7 +359,7 @@ merge_month(MONTH_PATH, Station.upper(), date_object, domain="global")
 # ------------------------------------------------
 print("Calculate fossil fuel concentration")
 PATH_FF = IN_PATH+"flux/"
-cal_ffco2(PATH_FF, ATT_PATH, Station, Year, Month, Day, domain="global")
+cal_ffco2(PATH_FF, ATT_PATH, Station, Year, Month, Day, domain="global", upload=True)
 print("Calculation of fossil fuel concentration is done")
 merge_month(MONTH_PATH, Station.upper(), date_object, domain="global", prefix="ffco2")
 

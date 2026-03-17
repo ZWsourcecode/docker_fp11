@@ -6,6 +6,7 @@ from pathlib import Path
 import numpy as np
 import xarray as xr
 from os.path import isfile, join, exists
+import paramiko
 
 def merge_month(in_path, station, date, domain="global", prefix='delta_14C'):
     """Merge daily CSV files for a station/month into a single monthly CSV.
@@ -206,9 +207,45 @@ def merge_year(in_path, station, date, domain="global", overwrite=False, prefix=
     print(f"Merged {len(csv_files)} files into {os.path.basename(outfile)}")
     # return combined_df
 
-def cal_ffco2(PATH_FF, ATT_PATH, Station, Year, Month, Day, domain="global"):
+
+def upload_to_sftp(hostname, port, username, password, local_file_path, remote_directory, remote_file_name):
+    """Upload a local file to a remote SFTP server, creating the remote directory if needed."""
+    ssh = paramiko.SSHClient()
+    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    ssh.connect(hostname, port=port, username=username, password=password)
+    sftp = ssh.open_sftp()
+    try:
+        current_path = '/'
+        for dir_name in remote_directory.split('/'):
+            if dir_name:
+                current_path = current_path + dir_name + '/'
+                try:
+                    sftp.stat(current_path)
+                except IOError:
+                    sftp.mkdir(current_path)
+                    print(f"Created directory: {current_path}")
+        sftp.put(local_file_path, f"{remote_directory}/{remote_file_name}")
+        print(f"File '{local_file_path}' uploaded to '{remote_directory}' on {hostname}")
+    finally:
+        sftp.close()
+        ssh.close()
+
+
+def cal_ffco2(PATH_FF, ATT_PATH, Station, Year, Month, Day, domain="global", upload=False):
     """Calculate fossil-fuel CO2 at a station for one day using
-    GCP emissions and a merged FLEXPART footprint file."""
+    GCP emissions and a merged FLEXPART footprint file.
+
+    Args:
+        PATH_FF:   Path to the fossil-fuel emission NetCDF files.
+        ATT_PATH:  Output directory for the daily CSV result.
+        Station:   Station code (case-insensitive).
+        Year, Month, Day: Date of the simulation.
+        domain:    'global' or 'eu' (selects emission file and filename suffix).
+        upload:    If True, upload the output CSV to the SFTP server configured
+                   via environment variables SFTP_HOST, SFTP_USERNAME, SFTP_PASSWORD,
+                   SFTP_PORT.  Remote path follows the same convention as
+                   postprocess.py / postprocess_eu.py.
+    """
     # choose ff emission file 
     Station_lower = Station.lower()
     if domain == "global":
@@ -265,4 +302,19 @@ def cal_ffco2(PATH_FF, ATT_PATH, Station, Year, Month, Day, domain="global"):
     df_ffco2.to_csv(outpath, index=False)
 
     ds.close()
+
+    if upload:
+        from dotenv import load_dotenv
+        load_dotenv()
+        host = os.getenv("SFTP_HOST")
+        username = os.getenv("SFTP_USERNAME")
+        password = os.getenv("SFTP_PASSWORD")
+        port = os.getenv("SFTP_PORT")
+        port = int(port) if port else 22
+        if domain == "eu":
+            remote_directory = f"/data/CPrequests/icoscp_v11_eu/{Station}/{Year}/{str(Month).zfill(2)}"
+        else:
+            remote_directory = f"/data/CPrequests/icoscp_v11/{Station}/{Year}/{str(Month).zfill(2)}"
+        print(f"Uploading {Filename_ff} ...")
+        upload_to_sftp(host, port, username, password, outpath, remote_directory, Filename_ff)
     # return df_ffco2

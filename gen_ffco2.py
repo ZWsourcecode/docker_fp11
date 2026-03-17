@@ -91,7 +91,7 @@ def process_station_for_period(station, start_date, end_date, domain, mode='both
             ATT_PATH = MONTH_PATH + base_folder + "/" + station_upper + "/" + str(Year) + "/" + str(Month).zfill(2)
             Path(ATT_PATH).mkdir(parents=True, exist_ok=True)
             try:
-                cal_ffco2(PATH_FF, ATT_PATH, station_upper, Year, Month, Day, domain=domain)
+                cal_ffco2(PATH_FF, ATT_PATH, station_upper, Year, Month, Day, domain=domain, upload=True)
                 print(f"{station_upper} {day} done", flush=True)
             except Exception as e:
                 print(f"Error calculating ffco2 for {station_upper} {day}: {e}", flush=True)
