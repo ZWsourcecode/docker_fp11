@@ -312,9 +312,9 @@ def cal_ffco2(PATH_FF, ATT_PATH, Station, Year, Month, Day, domain="global", upl
         port = os.getenv("SFTP_PORT")
         port = int(port) if port else 22
         if domain == "eu":
-            remote_directory = f"/data/CPrequests/icoscp_v11_eu/{Station}/{Year}/{str(Month).zfill(2)}"
+            remote_directory = f"/data/CPrequests/icoscp_v11_eu/{Station_lower}/{Year}/{str(Month).zfill(2)}"
         else:
-            remote_directory = f"/data/CPrequests/icoscp_v11/{Station}/{Year}/{str(Month).zfill(2)}"
+            remote_directory = f"/data/CPrequests/icoscp_v11/{Station_lower}/{Year}/{str(Month).zfill(2)}"
         print(f"Uploading {Filename_ff} ...")
         upload_to_sftp(host, port, username, password, outpath, remote_directory, Filename_ff)
     # return df_ffco2
