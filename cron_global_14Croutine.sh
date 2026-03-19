@@ -48,6 +48,8 @@ cd $F_PATH/$simulationidproject/$start
 # run with mpi
 # nohup mpirun -n 2 --allow-run-as-root $FLEXPARTPATH/FLEXPART_MPI pathnames >${output}${start}/log 2>&1 & 
 
+# avoid core dump
+ulimit -c 0
 # Launch FLEXPART in background and capture PID of the background process
 nohup $FLEXPARTPATH/FLEXPART_ETA pathnames >${output}${start}/log 2>&1 & 
 
