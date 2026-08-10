@@ -175,7 +175,7 @@ def loop_footprint (npoint, IN_PATH, OUT_PATH, darray_fp, darray_hmix, pd_atime,
 
 def get_footprint(prefix, IN_PATH, OUT_PATH, Station, Project, Year, Month, Day, cpus=1):
     """ get flexpart footprint per arriving time """
-    IN_PATH = IN_PATH + Station[0:3] + "/" + Station + Project + "/" + Year + Month + Day + "/"
+    IN_PATH = IN_PATH + Station[0:3] + "/" + Station + Project + "/" + Year + "/" + Year + Month + Day + "/"
     
     ds_flexp = xr.open_dataset(IN_PATH+ prefix + '.nc')
     darray_fp = ds_flexp.spec001_mr_hmix_arr

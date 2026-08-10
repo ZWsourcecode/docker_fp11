@@ -1,7 +1,7 @@
 #!/bin/bash 
-### create pathnames, RELEASES, COMMAND, OUTGRID, OUTGRID_NEST, AGECLASSES  file for flexpart
+### create pathnames, RELEASES, COMMAND file for flexpart
 ### script should be in parent folder of options
-### run : bash flexpart11set.sh 11 inputs
+### run : bash flexpartset_nest_14C.sh 
 ### zhendong.wu@nateko.lu.se
 
 HOME_PATH=$(pwd)
@@ -9,29 +9,29 @@ OPTION_PATH=$HOME_PATH/options
 
 LIFETIME=10 # in days
 
-echo ------ make pathnames, RELEASES, COMMAND, OUTGRID, OUTGRID_NEST, AGECLASSES file ------
+echo ------ make pathnames, RELEASES, COMMAND, OUTGRID, OUTGRID_NEST file ------
 echo
 
 # ======================================
-# arguments
+# arguments of flexpartset.sh
 # ======================================
 simulationidproject=$1 # simulations id and project name, e.g. htm150C14eu
-input=$2 # meteo input path
-output=$3 # flexpart output path
-id=$4 # species id, NOTE one id for now 
-start=$5 # start date, e.g. YYYYMMDD
-end=$6 # end date, e.g. YYYYMMDD
-step=$7 # time step in hour
-lon=$8 # longitude of release box -180 < LON1 <180
-lat=$9 # latitude of release box, -90 < LAT1 < 90
-z=${10} # height of release
-particles=${11} # Total number of particles to be released
+input=$2 # meteo global input path
+input_nest=$3 # meteo nest input path
+output=$4 # flexpart output path
+id=$5 # species id, NOTE one id for now 
+start=$6 # start date, e.g. YYYYMMDD
+end=$7 # end date, e.g. YYYYMMDD
+step=$8 # time step in hour
+lon=$9 # longitude of release box -180 < LON1 <180
+lat=${10} # latitude of release box, -90 < LAT1 < 90
+z=${11} # height of release
+particles=${12} # Total number of particles to be released
 
 output=${output}${start:0:4}/${start}/
 mkdir -p ${output}
 WORK_PATH=${HOME_PATH}/${simulationidproject}/${start}
 mkdir -p ${WORK_PATH}
-
 # ======================================
 # backup orignal files
 # ======================================
@@ -49,6 +49,8 @@ ${WORK_PATH}/options/
 ${output}
 ${input}
 ${input}AVAILABLE
+${input_nest}
+${input_nest}AVAILABLE
 EOM
 echo pathnames is done, under ${WORK_PATH}/
 echo
@@ -264,6 +266,7 @@ cat <<EOM >${WORK_PATH}/options/OUTGRID_NEST
 ! NUMYGRID   = NUMBER OF GRID POINTS IN Y DIRECTION (= No. of cells + 1)       *
 ! DXOUT      = GRID DISTANCE IN X DIRECTION                                    *
 ! DYOUN      = GRID DISTANCE IN Y DIRECTION                                    *
+! OUTHEIGHTS = HEIGHT OF LEVELS (UPPER BOUNDARY)                               *
 !*******************************************************************************
 &OUTGRIDN
  OUTLON0N=    -15.00,

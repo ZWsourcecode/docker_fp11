@@ -27,7 +27,7 @@ lat=$9 # latitude of release box, -90 < LAT1 < 90
 z=${10} # height of release
 particles=${11} # Total number of particles to be released
 
-output=${output}${start}/
+output=${output}${start:0:4}/${start}/
 mkdir -p ${output}
 WORK_PATH=${HOME_PATH}/${simulationidproject}/${start}
 mkdir -p ${WORK_PATH}
