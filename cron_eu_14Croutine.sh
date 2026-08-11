@@ -51,7 +51,7 @@ cd $F_PATH/$simulationidproject/$start
 # avoid core dump
 ulimit -c 0
 # Launch FLEXPART in background and capture PID of the background process
-nohup $FLEXPARTPATH/FLEXPART_ETA pathnames >${output}${start}/log 2>&1 & 
+nohup $FLEXPARTPATH/FLEXPART_ETA pathnames >${output}${start:0:4}/${start}/log 2>&1 & 
 
 # Change back to root path
 cd $F_PATH
