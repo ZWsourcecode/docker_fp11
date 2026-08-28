@@ -2370,13 +2370,13 @@ subroutine verttransform_ecmwf_windfields_nest(l,n, &
         !************************************************
         do kz=1,nuvz-1
           if (kz.eq.1) then
-            dpdeta=(akm(kz+1)-akm(kz)+(bkm(kz+1)-bkm(kz))*ps(ix,jy,1,n))/ &
+            dpdeta=(akm(kz+1)-akm(kz)+(bkm(kz+1)-bkm(kz))*psn(ix,jy,1,n,l))/ &
               (wheight(kz+1)-wheight(kz))
           else if (kz.eq.nuvz-1) then
-            dpdeta=(akm(kz)-akm(kz-1)+(bkm(kz)-bkm(kz-1))*ps(ix,jy,1,n))/ &
+            dpdeta=(akm(kz)-akm(kz-1)+(bkm(kz)-bkm(kz-1))*psn(ix,jy,1,n,l))/ &
               (wheight(kz)-wheight(kz-1))
           else
-            dpdeta=(akm(kz+1)-akm(kz-1)+(bkm(kz+1)-bkm(kz-1))*ps(ix,jy,1,n))/ &
+            dpdeta=(akm(kz+1)-akm(kz-1)+(bkm(kz+1)-bkm(kz-1))*psn(ix,jy,1,n,l))/ &
               (wheight(kz+1)-wheight(kz-1))
           endif
           wwetan(ix,jy,kz,n,l)=wwhn(ix,jy,kz,l)/dpdeta

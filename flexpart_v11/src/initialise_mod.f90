@@ -728,14 +728,25 @@ subroutine init_particle(itime,ipart,ithread)
   !************************************************************************
   if ((iout.eq.4).or.(iout.eq.5)) call init_mass_conversion(ipart,part(ipart)%npoint)
   
-  h=max(hmix(ix ,jy,1,memind(1)), &
-       hmix(ixp,jy ,1,memind(1)), &
-       hmix(ix ,jyp,1,memind(1)), &
-       hmix(ixp,jyp,1,memind(1)), &
-       hmix(ix ,jy ,1,memind(2)), &
-       hmix(ixp,jy ,1,memind(2)), &
-       hmix(ix ,jyp,1,memind(2)), &
-       hmix(ixp,jyp,1,memind(2)))
+  if (ngrid.le.0) then
+    h=max(hmix(ix ,jy,1,memind(1)), &
+         hmix(ixp,jy ,1,memind(1)), &
+         hmix(ix ,jyp,1,memind(1)), &
+         hmix(ixp,jyp,1,memind(1)), &
+         hmix(ix ,jy ,1,memind(2)), &
+         hmix(ixp,jy ,1,memind(2)), &
+         hmix(ix ,jyp,1,memind(2)), &
+         hmix(ixp,jyp,1,memind(2)))
+  else
+    h=max(hmixn(ix ,jy,1,memind(1),ngrid), &
+         hmixn(ixp,jy ,1,memind(1),ngrid), &
+         hmixn(ix ,jyp,1,memind(1),ngrid), &
+         hmixn(ixp,jyp,1,memind(1),ngrid), &
+         hmixn(ix ,jy ,1,memind(2),ngrid), &
+         hmixn(ixp,jy ,1,memind(2),ngrid), &
+         hmixn(ix ,jyp,1,memind(2),ngrid), &
+         hmixn(ixp,jyp,1,memind(2),ngrid))
+  endif
 
   zeta=zt/h
 

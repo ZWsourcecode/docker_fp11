@@ -71,7 +71,8 @@ subroutine alloc_getfields
   allocate(pwater(0:nxmax-1,0:nymax-1,nzmax,numwfmem),stat=stat)
   if (stat.ne.0) write(*,*)'ERROR: could not allocate pwater'
 
-  allocate(ppml(0:nxmax-1,0:nymax-1,nuvzmax),ppmk(0:nxmax-1,0:nymax-1,nuvzmax),stat=stat)
+  allocate(ppml(0:max(nxmax,nxmaxn)-1,0:max(nymax,nymaxn)-1,nuvzmax), &
+    ppmk(0:max(nxmax,nxmaxn)-1,0:max(nymax,nymaxn)-1,nuvzmax),stat=stat)
   if (stat.ne.0) write(*,*)'ERROR: could not allocate ppml,ppmk'
   allocate(ttlev(nuvzmax),qvlev(nuvzmax),ulev(nuvzmax),vlev(nuvzmax),zlev(nuvzmax),stat=stat)
   if (stat.ne.0) write(*,*)'ERROR: could not allocate ttlev,qvlev,ulev,vlev,zlev'

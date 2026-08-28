@@ -4241,9 +4241,9 @@ subroutine alloc_windfields_nest
   allocate(etawheightn(0:nxmaxn-1,0:nymaxn-1,nuvzmax,numwfmem,numbnests),stat=stat)
   if (stat.ne.0) error stop "Could not allocate etawheightn"
 
-  allocate(icloudbotn(0:nxmax-1,0:nymax-1,numwfmem,numbnests),stat=stat)
+  allocate(icloudbotn(0:nxmaxn-1,0:nymaxn-1,numwfmem,numbnests),stat=stat)
   if (stat.ne.0) error stop "Could not allocate icloudbotn"
-  allocate(icloudtopn(0:nxmax-1,0:nymax-1,numwfmem,numbnests),stat=stat)
+  allocate(icloudtopn(0:nxmaxn-1,0:nymaxn-1,numwfmem,numbnests),stat=stat)
   if (stat.ne.0) error stop "Could not allocate icloudtopn"
   allocate(prsn(0:nxmaxn-1,0:nymaxn-1,nzmax,numwfmem,numbnests),stat=stat)
   if (stat.ne.0) error stop "Could not allocate prsn"
