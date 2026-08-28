@@ -84,7 +84,6 @@ RUN apt-get install ./libcr0_0.8.5-2.3_amd64.deb ./libcr-dev_0.8.5-2.3_amd64.deb
 # install python and its library
 # RUN apt-get install -y python3.9 python3.9-dev
 COPY requirements.txt .
-RUN python3 -m pip install --upgrade pip
 RUN pip3 install --upgrade setuptools
 RUN pip3 install -r requirements.txt
 
@@ -112,6 +111,6 @@ RUN chmod +x setattribute_mon.sh setattribute_mon_eu.sh
 
 RUN dos2unix *.conf 
 
-ENV PATH=/usr/local/flexpart_v10.4/src/:$PATH  
-ENV FLEXPARTPATH=/usr/local/flexpart_v10.4/src/
-ENV DOWNLOADPATH=/usr/local/flexpart_v10.4/download/
+ENV PATH=/usr/local/flexpart_v11/src/:$PATH  
+ENV FLEXPARTPATH=/usr/local/flexpart_v11/src/
+ENV DOWNLOADPATH=/usr/local/flexpart_v11/download/

@@ -15,8 +15,10 @@ SHELL = /bin/bash
 #      make [-j] eta=yes
 #    Compile FLEXPART without NetCDF
 #      make [-j] eta=<yes/no> ncf=no
+#    Compile FLEXPART with debug flags (-Og -g3 -fcheck=all etc, see DBGFLAGS)
+#      make [-j] debug=yes
 #
-# 
+#
 ################################################################################
 
 ## PROGRAMS
@@ -111,8 +113,14 @@ FFLAGS   = $(INC) -O$(O_LEV) -m64 -cpp -mcmodel=large $(NCOPT) $(ETAOPT) $(FUSER
 
 DBGFLAGS = $(INC) -O$(O_LEV_DBG) -g3 -ggdb3 -cpp -m64 -mcmodel=large -fconvert=little-endian -frecord-marker=4 -fmessage-length=0 -flto=jobserver -O$(O_LEV_DBG) $(NCOPT) $(ETAOPT) -fbacktrace   -Wall  -fdump-core $(FUSER)  #  -ffpe-trap=invalid,overflow,denormal,underflow,zero  -Warray-bounds -fcheck=all
 
-LDFLAGS  = $(FFLAGS) $(LIBPATH) $(LIBRPATH) $(LIBS) 
+LDFLAGS  = $(FFLAGS) $(LIBPATH) $(LIBRPATH) $(LIBS)
 LDDEBUG  = $(DBGFLAGS) $(LIBPATH) $(LIBRPATH) $(LIBS)
+
+### Enable debug build?
+ifeq ($(debug), yes)
+	FFLAGS  = $(DBGFLAGS)
+	LDFLAGS = $(LDDEBUG)
+endif
 
 MODOBJS = \
 advance_mod.o 		binary_output_mod.o \

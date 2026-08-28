@@ -170,7 +170,7 @@ cat <<EOM >${WORK_PATH}/options/COMMAND
  LOUTRESTART=       -1, ! Interval of writing restart files (s), switched off when set to -1
  LRECOUTSTEP=        3600, ! Interval of model output at receptors (s)
  LRECOUTAVER=        3600, ! Interval of receptor output averaging (s)
- LRECOUTSAMPLE=      1200, ! Interval of receptor output sampling (s)
+ LRECOUTSAMPLE=       900, ! Interval of receptor output sampling (s)
  LSYNCTIME=           900, ! All processes are synchronized to this time interval (s)
  CTL=          -5.0000000, ! CTL>1, ABL time step = (Lagrangian timescale (TL))/CTL, uses LSYNCTIME if CTL<0
  IFINE=                 4, ! Reduction for time step in vertical transport, used only if CTL>1 

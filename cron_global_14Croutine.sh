@@ -50,6 +50,8 @@ cd $F_PATH/$simulationidproject/$start
 
 # avoid core dump
 ulimit -c 0
+# Sets the stack size limit to unlimited.
+ulimit -s unlimited
 # Launch FLEXPART in background and capture PID of the background process
 nohup $FLEXPARTPATH/FLEXPART_ETA pathnames >${output}${start:0:4}/${start}/log 2>&1 & 
 

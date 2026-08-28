@@ -32,6 +32,10 @@ prefix=${simulationid//[0-9]/}
 simulationidproject=${simulationid}${project} # simulations id and project name, e.g. htm150C14eu
 output=${output}${prefix}/${simulationidproject}/ # e.g. xxx/htm/htm150C14eu/
 
+# avoid core dump
+ulimit -c 0
+# Sets the stack size limit to unlimited.
+ulimit -s unlimited
 # fix the missing results by each timestep, here is by each day
 end=$(date -u -d "$from +1 days" +%Y%m%d)
 while [ "$from" != "$to" ]
